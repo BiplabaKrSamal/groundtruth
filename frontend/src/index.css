@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-brass/20;
+  }
+  body {
+    @apply bg-ink text-chalk font-body antialiased;
+  }
+  ::selection {
+    @apply bg-brass/30 text-chalk;
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.brass-bright');
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  .stamp-code {
+    @apply font-mono tracking-[0.2em] font-semibold;
+  }
+}
