@@ -97,12 +97,12 @@ export default function HostCreate() {
           <textarea
             value={sourceText}
             onChange={(e) => setSourceText(e.target.value)}
-            placeholder="Paste an article, a set of notes, a transcript — anything with real facts in it."
+            placeholder="Paste an article, a set of notes, a transcript, anything with real facts in it."
             rows={10}
             className="bg-ink-raised border border-brass/25 rounded px-4 py-3 font-body leading-relaxed focus:border-brass-bright outline-none resize-none"
           />
           <span className="font-mono text-xs text-paper-dim self-end">
-            {wordCount} words {wordCount < 40 && wordCount > 0 && '— add a bit more for good grounding'}
+            {wordCount} words {wordCount < 40 && wordCount > 0 && '(add a bit more for good grounding)'}
           </span>
         </label>
 

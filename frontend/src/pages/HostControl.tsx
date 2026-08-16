@@ -94,7 +94,7 @@ export default function HostControl() {
         {phase === 'lobby' && (
           <section className="flex flex-col gap-6 items-center border border-brass/20 rounded-lg py-16 px-6">
             <p className="font-body text-paper-dim text-center max-w-sm">
-              Share the code above. Players join at your GroundTruth link and enter it —
+              Share the code above. Players join at your GroundTruth link and enter it,
               no account needed.
             </p>
             <p className="font-mono text-sm text-brass-bright">

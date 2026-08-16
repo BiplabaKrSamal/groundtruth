@@ -120,7 +120,7 @@ export default function Play() {
             </div>
             {phase === 'answered' && (
               <p className="font-mono text-xs text-center text-paper-dim">
-                answer locked in — waiting on the rest of the room
+                answer locked in, waiting on the rest of the room
               </p>
             )}
           </div>

@@ -63,8 +63,8 @@ export default function HostAnalytics() {
                   >
                     {Math.abs(gap) > 0.35
                       ? gap > 0
-                        ? 'model was more confident than the room performed — worth rechecking the grounding'
-                        : 'room did better than the model expected — likely an easy, well-known fact'
+                        ? 'model was more confident than the room performed, worth rechecking the grounding'
+                        : 'room did better than the model expected, likely an easy, well-known fact'
                       : 'confidence roughly tracked outcome'}
                   </p>
                 </div>
