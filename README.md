@@ -111,7 +111,7 @@ included `vercel.json` handles the SPA rewrite.
 
 ## Tests
 
-23 backend tests: retrieval correctness, the confidence-scoring pipeline
+17 backend tests: retrieval correctness, the confidence-scoring pipeline
 (grounded vs. fabricated), scoring/streak logic, room-code handling, and
 one full integration test that drives an entire session — join, start,
 answer, reveal, next, end — over a real WebSocket connection, not mocks.

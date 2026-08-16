@@ -136,8 +136,8 @@ A few concrete decisions, and where I changed course:
 
 ## GitHub repository
 
-[ADD LINK — push this repo, history is already staged as 23 commits
-across the actual build order, nothing squashed]
+[ADD LINK — push this repo, the commit history is already staged across
+the actual build order, nothing squashed]
 
 ## Deployment
 
