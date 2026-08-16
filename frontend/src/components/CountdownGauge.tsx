@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { GAUGE_START_ANGLE as START_ANGLE, GAUGE_END_ANGLE as END_ANGLE, describeArc } from '../lib/gauge'
 
 interface CountdownGaugeProps {
   totalSeconds: number
@@ -7,20 +8,6 @@ interface CountdownGaugeProps {
   onComplete?: () => void
 }
 
-const START_ANGLE = -120
-const END_ANGLE = 120
-
-function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
-}
-
-function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(cx, cy, r, endAngle)
-  const end = polarToCartesian(cx, cy, r, startAngle)
-  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`
-}
 
 export function CountdownGauge({ totalSeconds, startedAt, size = 88, onComplete }: CountdownGaugeProps) {
   const [remaining, setRemaining] = useState(totalSeconds)
