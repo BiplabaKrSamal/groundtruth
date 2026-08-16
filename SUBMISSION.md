@@ -1,84 +1,41 @@
-# Founding AI Engineer Assignment — GroundTruth
+# Founding AI Engineer Assignment - GroundTruth
 
-**Biplaba Kr Samal** · [GitHub repo — ADD LINK] · [Live app — ADD LINK]
+Biplaba Kr Samal
+GitHub: [ADD LINK]
+Live: [ADD LINK]
 
----
+## What I built and why
 
-## What I built, and why
+The brief gives three examples (quiz app, FPV game, real-time collab app) but says going somewhere else entirely is fine too. I went with the quiz app on purpose, not as the safe pick. Superbrain's whole thing is compressing context without losing grounding, and gating edits behind approval, which is really a trust problem: how do you let a system act or generate on your behalf and still be able to check its work. A quiz generator has the same problem at a much smaller scale. Ask an LLM to write questions from a document and it'll happily invent a fact that isn't actually in there.
 
-The brief's own examples (quiz app, FPV game, real-time collab) all work;
-going elsewhere entirely was also fine. I built a quiz app on purpose,
-because it's a small version of Superbrain's actual problem: TokenFold
-compresses context without losing grounding, and edits wait for approval.
-Both are the same question — how do you let a system generate or act on
-your behalf and still verify it. An LLM asked to write quiz questions from
-a document will just as happily invent a fact that isn't there.
-
-GroundTruth: paste in a document, or upload a PDF, and it generates a live
-multiplayer quiz where every question cites the exact passage it came
-from and carries a confidence score for how well that grounding holds up.
-Host reviews and edits before going live. Afterward, a report compares
-the model's confidence against what the room actually got right — the
-closest thing to closing the loop on whether that confidence was earned.
+So GroundTruth: paste in a document, or upload a PDF, and it builds a live multiplayer quiz where every question is tied back to the exact passage it came from, plus a confidence score for how well that grounding actually holds up. Host reviews and edits before it goes live. After the quiz there's a report comparing what the model was confident about against what the room actually got right, which turned out to be the part I like most, since it's the closest thing to checking whether that confidence was deserved.
 
 ## Architecture and design
 
-**Backend:** FastAPI. REST for anything not time-sensitive (create
-session, generate, edit, publish), one WebSocket per room for live play.
-Split into small modules — `retrieval.py`, `quiz_generator.py`,
-`session_manager.py`, `ws_manager.py` — so each is testable without a
-live socket.
+Backend is FastAPI. REST for anything that isn't time sensitive (create a session, generate, edit, publish), one WebSocket per room for everything live. Split it into small modules (retrieval.py, quiz_generator.py, session_manager.py, ws_manager.py), mainly so each piece is testable without needing a socket open.
 
-**Confidence scoring is the core of this.** Asking an LLM to self-report
-confidence is unreliable — models are bad judges of their own
-uncertainty. So each question is scored on two things I can independently
-verify instead:
-1. Retrieval self-consistency — re-run the same hybrid BM25+TF-IDF+RRF
-   retriever (reused from an earlier resume-screening project) using the
-   generated question as the query, and check it actually surfaces the
-   chunk the model claims it used.
-2. Lexical grounding — does the correct answer share real vocabulary with
-   the source, or is it a paraphrase loose enough to be invented.
+Confidence scoring is where most of the thought went. The obvious move is asking the LLM how confident it is, but that's known to be unreliable, models aren't great judges of their own uncertainty. So each question gets scored two other ways instead, things I can actually check:
 
-`test_quiz_generator.py` proves this works: a deliberately fabricated
-question scores measurably lower than a grounded one — not just that the
-pipeline runs.
+1. Take the question the model wrote and run it back through the retriever (same hybrid BM25+TF-IDF+RRF setup from an earlier resume-screening project). If the retriever can't independently find its way back to the chunk the model claims it used, that's a real signal something's off.
+2. Check whether the correct answer actually shares vocabulary with the source, or whether it's a paraphrase loose enough that it could've been made up.
 
-**Vercel + Render split, not Vercel-native end to end:** serverless
-functions don't hold persistent connections, and a live quiz is nothing
-but persistent connections. Frontend on Vercel per the brief, backend on
-Render for the WebSocket.
+`test_quiz_generator.py` proves this does something real: feed it a source, ask for one grounded question and one deliberately fabricated one, and the fabricated one scores lower. Not just that the pipeline runs, that it actually tells the two apart.
 
-**In-memory session state, not Redis or Postgres:** at quiz-night scale —
-one process, rooms of a few dozen, a session that lasts one quiz — a
-database is ops overhead with no current benefit. `session_manager.py` is
-the only file that knows state is in-memory; swapping it out later
-touches that one file, not every caller.
+On hosting, the brief wants this on Vercel and the frontend is. But Vercel's serverless functions don't hold a persistent connection, and a live quiz is basically nothing but persistent connections, so the backend sits on Render instead. Could've reached for something like Pusher to stay fully inside Vercel's model, but that felt like adding an external dependency just to avoid a second host, when WebSockets already solve this on their own.
 
-**Frontend:** React, TypeScript, Tailwind. The design deliberately skips
-Kahoot's bright quiz-show look — the actual subject here is verification,
-not a party game — in favor of a survey-instrument visual language (brass
-and ink tones), with a confidence dial styled as an analog gauge reused
-identically in question review and the post-session report.
+Session state lives in memory, not Redis or Postgres. At the scale this actually runs at (one process, a few dozen people in a room, a session that lasts the length of one quiz) a database is ops overhead I don't need yet. `session_manager.py` is the only file that knows state lives in memory, so if that has to change later it's one file, not every caller.
+
+Frontend is React, TypeScript, Tailwind. Skipped the bright Kahoot quiz-show look on purpose. The actual subject here is verification and trust, not a party game, so it leans on a survey-instrument look instead: brass and ink tones, a confidence dial styled like an analog gauge that shows up both in question review and in the post-session report.
 
 ## Decision-making
 
-- Chunked source text at 90 words initially. A test against a short
-  source caught the real bug: two facts merging into one chunk, silently
-  producing fewer questions than requested. Fixed with a smaller,
-  quiz-specific chunk size (45 words) — one fact per chunk.
-- The WebSocket broadcast never includes the correct answer to anyone,
-  host included, even while a question is live — the host UI
-  cross-references the full question data it already fetched over REST.
-  Kept `ws.py` from needing host-vs-player branching.
-- A full integration test driving a real host and player socket through
-  an entire session caught something the unit tests didn't: joining a
-  room broadcasts the participant list to everyone in it, including the
-  joiner. The frontend has to expect that second message right after the
-  "joined" reply.
-- Groq by default, behind an `LLMProvider` interface rather than a direct
-  SDK call — fast enough for live generation, and swapping providers
-  later is a new class, not a rewrite.
+Chunking started at 90 words, a fine default for retrieval generally. A test against a short source caught the actual bug though: two separate facts were merging into one chunk, so the generator quietly produced fewer questions than asked for. Fixed it with a smaller, quiz-specific chunk size (45 words) since a question should hang off one fact, not a paragraph blending a few together.
+
+Went back and forth on whether the host should see the correct answer live, while a question's running, or only at reveal. Landed on the WebSocket never sending the answer key to anyone, host included, and the host UI just cross-references the full question data it already pulled over REST when the page loaded. Simplified `ws.py` a fair bit since it doesn't need host vs player branching in the payload anymore.
+
+Wrote a full integration test that opens a real host socket and a real player socket and drives a whole session end to end. It caught something the unit tests missed: joining a room broadcasts the participant list to everyone already in it, including whoever just joined, so the frontend has to expect that second message right after the "joined" reply, not just the reply on its own. Wouldn't have caught that without testing the actual protocol instead of the functions underneath it.
+
+Groq is the default provider but sits behind an `LLMProvider` interface rather than being called directly. Partly because Groq's fast enough for live generation, partly because the role mentions understanding tradeoffs across providers, so swapping to Anthropic or OpenAI later means adding a class, not rewriting anything.
 
 ## GitHub repository
 
@@ -86,31 +43,20 @@ identically in question review and the post-session report.
 
 ## Deployment
 
-[ADD LINK — see README.md for the Render + Vercel steps]
+[ADD LINK, see README for the Render and Vercel steps]
 
 ---
 
-## 3. Product Strategy
+## Product strategy
 
 ### A. If you were building this product, what would you change or add next, and why?
 
-From what's publicly documented — not hands-on yet, so treat this as a
-starting point:
+Some of this comes from what's publicly documented rather than from actually using it, so treat it as a starting point:
 
-- No Linux build. A real gap given how much of the target engineering
-  audience runs Linux day to day.
-- The published benchmark is Django bug fixes only. I'd want it
-  stress-tested on other languages and on greenfield work, not just bug
-  fixes, before trusting the token-reduction numbers generalize.
-- **[PERSONALIZE AFTER USING IT]** — does approval-gating feel like
-  safety or friction under time pressure? Does context survive the switch
-  between terminal and IDE extension?
+- No Linux build. Docs list macOS and Windows only, which feels like a real gap given how much of the backend and infra crowd this is aimed at runs Linux day to day.
+- The published benchmark is Django bug fixes only. Fine for an honest comparison against Claude Code, but narrow. I'd want to see it run against other languages and against greenfield work, not just bug fixes, before trusting that the token numbers hold up generally.
+- [fill in after actually using it] Does the approval gating feel like safety or friction once there's real time pressure. Does context survive switching between the terminal and the IDE extension, or does it feel disjointed.
 
 ### B. What major UI issues do you dislike, and how do you think they annoy current users?
 
-**Needs real usage — not filling this in with guesses.** Superbrain is
-free in beta (macOS/Windows). Questions to answer once there's real usage
-to draw on: where did the terminal-first flow break down versus the IDE
-extension, did the approval gate build trust or cost time, did anything
-feel like it lost context it should've kept. Inventing specifics here
-would defeat the point of the question.
+Leaving this one mostly blank on purpose. Superbrain's free during beta on Mac and Windows, and the honest answer here only comes from actually running it against a real repo for a real task, not from guessing. Once there's real usage behind it: where did the terminal flow feel natural versus where I reached for the IDE extension instead, did the approval gate ever get in the way or did it build trust, did anything feel like it lost context it should've kept. Making up specific complaints here would kind of defeat the point of asking, they want to see how I think, not read a polished but invented answer.
