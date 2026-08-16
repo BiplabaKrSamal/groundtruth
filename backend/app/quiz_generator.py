@@ -33,8 +33,8 @@ async def generate_quiz(
     question_count: int = 8,
     time_limit_seconds: int = 20,
 ) -> list[Question]:
-    # Smaller chunks than the retriever's general-purpose default: a quiz
-    # question should hang off one fact, not a paragraph that blends several.
+    # smaller chunks than the retriever's general-purpose default. a quiz
+    # question should hang off one fact, not a paragraph blending a few
     chunks = chunk_text(source_text, target_words=45)
     if not chunks:
         return []
@@ -62,18 +62,18 @@ async def generate_quiz(
             for i, opt in enumerate(raw["options"])
         ]
 
-        # Independent grounding check: does re-running retrieval on the
-        # generated question actually surface the chunk the model claims
-        # it used? This is the self-consistency half of the confidence score.
+        # re-run retrieval using the question itself and see if it actually
+        # points back to the chunk the model says it used. self-consistency
+        # half of the confidence score
         retrieved = retriever.search(raw["prompt"], top_k=3)
         retrieval_score = next(
             (score for chunk, score in retrieved if chunk.chunk_id == claimed_chunk.chunk_id),
             0.0,
         )
 
-        # Lexical grounding check: does the correct option actually share
-        # vocabulary with the source excerpt, or is it a paraphrase so loose
-        # it could be fabricated? Independent of the retrieval signal above.
+        # does the correct option actually share vocabulary with the source
+        # excerpt, or is it a paraphrase loose enough to be made up. this is
+        # independent of the retrieval signal above
         correct_text = raw["options"][correct_idx]
         lexical_score = _lexical_overlap(correct_text, claimed_chunk.text)
 

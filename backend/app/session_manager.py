@@ -9,7 +9,7 @@ ROOM_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no 0/O/1/I
 class SessionStore:
     """Room-code-indexed session state.
 
-    In-memory by design for the MVP — a single-process deploy is fine at
+    In-memory by design for the MVP. A single-process deploy is fine at
     quiz-night scale. The store is the only place that knows that; swapping
     to Redis later means changing this file, not every caller.
     """
