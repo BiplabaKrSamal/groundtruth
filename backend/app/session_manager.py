@@ -1,5 +1,4 @@
 import random
-import string
 import time
 
 from app.models import AnswerRecord, Participant, QuizSession, SessionPhase

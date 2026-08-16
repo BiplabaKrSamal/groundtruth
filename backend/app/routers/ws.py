@@ -1,6 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from app.models import SessionPhase
 from app.session_manager import store
 from app.ws_manager import manager
 
