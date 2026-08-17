@@ -16,7 +16,7 @@ services:
       - key: LLM_MODEL
         value: llama-3.3-70b-versatile
       - key: CORS_ORIGINS
-        value: https://groundtruth.vercel.app
+        value: https://groundtruth-zeta-flax.vercel.app
       - key: MAX_QUESTIONS_PER_QUIZ
         value: "12"
       - key: QUESTION_TIME_LIMIT_SECONDS

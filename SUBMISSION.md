@@ -2,7 +2,7 @@
 
 Biplaba Kr Samal
 GitHub: https://github.com/BiplabaKrSamal/groundtruth
-Live: [ADD LINK]
+Live: https://groundtruth-zeta-flax.vercel.app
 
 ## What I built and why
 
@@ -41,7 +41,9 @@ Groq is the default provider but sits behind an `LLMProvider` interface rather t
 
 https://github.com/BiplabaKrSamal/groundtruth
 
-[ADD LINK, see README for the Render and Vercel steps]
+https://groundtruth-zeta-flax.vercel.app
+
+Backend API: https://groundtruth-api-bu7u.onrender.com
 
 ---
 
