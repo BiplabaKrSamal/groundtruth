@@ -1,7 +1,7 @@
 # Founding AI Engineer Assignment - GroundTruth
 
 Biplaba Kr Samal
-GitHub: [ADD LINK]
+GitHub: https://github.com/BiplabaKrSamal/groundtruth
 Live: [ADD LINK]
 
 ## What I built and why
@@ -39,9 +39,7 @@ Groq is the default provider but sits behind an `LLMProvider` interface rather t
 
 ## GitHub repository
 
-[ADD LINK]
-
-## Deployment
+https://github.com/BiplabaKrSamal/groundtruth
 
 [ADD LINK, see README for the Render and Vercel steps]
 
