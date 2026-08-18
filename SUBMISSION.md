@@ -1,8 +1,6 @@
 # Founding AI Engineer Assignment - GroundTruth
 
 Biplaba Kr Samal
-GitHub: https://github.com/BiplabaKrSamal/groundtruth
-Live: https://groundtruth-zeta-flax.vercel.app
 
 ## What I built and why
 
@@ -41,9 +39,11 @@ Groq is the default provider but sits behind an `LLMProvider` interface rather t
 
 https://github.com/BiplabaKrSamal/groundtruth
 
+## Deployment
+
 https://groundtruth-zeta-flax.vercel.app
 
-Backend API: https://groundtruth-api-bu7u.onrender.com
+Backend API (Render): https://groundtruth-api-bu7u.onrender.com
 
 ---
 
@@ -53,9 +53,11 @@ Backend API: https://groundtruth-api-bu7u.onrender.com
 
 *(From actually using Superbrain on Windows, testing it directly against its own stated capabilities.)*
 
-Testing it surfaced the same underlying gap in three separate places, which is enough to call it a pattern rather than a one-off: refactoring across a large set of files, it wrapped up looking done, but only some of the files had actually changed. Reasoning through a change's impact, it missed a real dependency. Working in an existing pipeline, it reached for a new library instead of the one already sitting in the dependency manifest. None of the three came with any signal that something was incomplete — it just presents partial work as finished. That's the fix I'd prioritize: whatever it doesn't fully do, or doesn't fully check, needs to say so, instead of looking identical to a complete result.
+Testing it turned up the same underlying gap in three separate places — the incomplete multi-file edit, the missed dependency, and the wrong library, all described below in Part B — which is enough to call it a pattern rather than a one-off. None of the three came with any signal that something was incomplete; it just presents partial work as finished. That's the fix I'd prioritize: whatever it doesn't fully do, or doesn't fully check, needs to say so, instead of looking identical to a complete result.
 
-Second: the approval layer has the same shape of gap. I approved one specific change, and two other files were modified along with it that weren't part of what the approval actually showed me. Everything above is an output-quality problem you'd catch by reviewing the work. This is different in kind — the review step itself doesn't fully cover what it claims to, so there's no reliable point left to catch it. I'd fix this one first: a product built entirely around "developer stays in control" doesn't get to have that exact mechanism be the unreliable part.
+Second: the approval gap, also below, has the same shape. Everything above is an output-quality problem you'd catch by reviewing the work. This is different in kind — the review step itself doesn't fully cover what it claims to, so there's no reliable point left to catch it. I'd fix this one first: a product built entirely around developer control doesn't get to have that exact mechanism be the unreliable part.
+
+Third, and this one's more of a longer-term bet than a fix: the missed dependency looks like it could be a TokenFold problem specifically, not just an agent one. If TokenFold didn't surface the file containing that dependency when it built context for the task, that's a context-selection gap rather than a reporting one — I didn't have visibility into what TokenFold actually pulled in, so I can't confirm that's what happened, but it's consistent with what I saw. Continued work on what TokenFold decides is relevant, not just how much it compresses, seems like the natural next investment, since that's the exact mechanism the whole product is built around.
 
 ### B. What major UI issues do you dislike, and how do you think they annoy current users?
 
