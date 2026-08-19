@@ -43,7 +43,7 @@ https://github.com/BiplabaKrSamal/groundtruth
 
 https://groundtruth-zeta-flax.vercel.app
 
-Backend API (Render): https://groundtruth-api-bu7u.onrender.com
+Backend API (Render): [https://groundtruth-api-bu7u.onrender.com](https://groundtruth-api-bu7u.onrender.com/api/health)
 
 ---
 
