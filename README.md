@@ -4,6 +4,8 @@ Live quizzes generated from your own source material. Every question ships with 
 
 Built for Open Gigantic's Founding AI Engineer assignment. Full writeup and reasoning is in [SUBMISSION.md](./SUBMISSION.md).
 
+Live: [groundtruth-zeta-flax.vercel.app](https://groundtruth-zeta-flax.vercel.app)
+
 ## How it works
 
 Paste in text or upload a PDF and it gets chunked, roughly 45 words each, small enough that one chunk is usually one fact instead of three blended together. An LLM writes one question per chunk, grounded only in that chunk.
